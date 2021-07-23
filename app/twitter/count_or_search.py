@@ -1,4 +1,3 @@
-
 import requests
 import os
 import json
@@ -33,32 +32,47 @@ def count(query_params):
 
 
 def search(query_params):
-    return connect_to_endpoint(search_url, query_params)
+    return convert_id_across_response(connect_to_endpoint(search_url, query_params))
+
+
+def convert_id_across_response(data):
+    data["data"] = use_id_as__id(data["data"])
+    if data["includes"] is not None:
+        if data["includes"]["tweets"] is not None:
+            data["includes"]["tweets"] = use_id_as__id(data["includes"]["tweets"])
+        if data["includes"]["users"]:
+            data["includes"]["users"] = use_id_as__id(data["includes"]["users"])
+    return data
+
+
+def use_id_as__id(data):
+    for item in data:
+        item["_id"] = item["id"]
+        del item["id"]
+    return data
 
 
 if __name__ == "__main__":
     query = "bitcoin"
 
+    # todo do I need in reply_to_user_id ?
     search_query_params = {
         'query': query + " lang:en",
         'max_results': 10,
         'start_time': twitter_date_format('2021-01-05'),
-        'end_time': twitter_date_format('2021-01-31'),
-        'tweet.fields': 'text,created_at,id,public_metrics,user_id',
-        'expansions': 'referenced_tweets.id'
+        'end_time': twitter_date_format('2021-01-30'),
+        'tweet.fields': 'text,created_at,id,public_metrics',
+        'user.fields': 'public_metrics',
+        'expansions': 'referenced_tweets.id,author_id,referenced_tweets.id.author_id,in_reply_to_user_id'
     }
-    # Optional params: start_time,end_time,since_id,until_id,max_results,next_token,
-    # expansions,tweet.fields,media.fields,poll.fields,place.fields,user.fields
-    json_response = search(search_query_params)
-    print(json.dumps(json_response, indent=4, sort_keys=False))
+    # json_response = search(search_query_params)
+    # print(json.dumps(json_response, indent=4, sort_keys=False))
 
-    # Optional params: start_time,end_time,since_id,until_id,next_token,granularity
     count_query_params = {
         'query': query + " lang:en",
         'granularity': 'day',
         'start_time': '2021-01-01T00:00:00Z',
         'end_time': '2021-02-01T00:00:00Z'
     }
-    json_response = count(count_query_params)
-    print(json.dumps(json_response, indent=4, sort_keys=False))
-
+    # json_response = count(count_query_params)
+    # print(json.dumps(json_response, indent=4, sort_keys=False))

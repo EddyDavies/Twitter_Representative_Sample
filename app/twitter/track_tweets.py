@@ -2,8 +2,8 @@ import os
 
 from pymongo import MongoClient
 
-from twitter.count_or_search import count
-from twitter.query_helper import get_date_range, form_count_query_params, twitter_date_format_to_day
+from count_or_search import count
+from query_helper import get_date_range, form_count_query_params, twitter_date_format_to_day
 
 # todo Confirm this used across program
 mongo = MongoClient(os.environ.get('MONGO_CLIENT'))
