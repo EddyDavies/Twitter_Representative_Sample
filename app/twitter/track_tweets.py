@@ -2,7 +2,7 @@ import os
 
 from pymongo import MongoClient
 
-from count_or_search import count
+from count_or_search import count, use_x_as_id
 from query_helper import get_date_range, form_count_query_params, twitter_date_format_to_day
 
 # todo Confirm this used across program
@@ -45,19 +45,17 @@ def save_counts(query, month):
         tweet_count = day["tweet_count"]
         day_track = {
             "tweet_total": tweet_count,
-            "tweet_target": round(tweet_count*percent),
+            "tweet_target": round(tweet_count * percent),
             "tweet_current": 0,
-            "date": twitter_date_format_to_day(day["start"])
+            "_id": twitter_date_format_to_day(day["start"])
         }
         tracker.append(day_track)
 
     db["counts"].insert_many(tracker)
-    db["counts"].update_one({"track": "months"},  {"$addToSet": {"months": month}}, upsert=True)
-
-
+    db["counts"].update_one({"track": "months"}, {"$addToSet": {"months": month}}, upsert=True)
 
 
 if __name__ == '__main__':
-    # track_months("bitcoin", "Jan18")
+    track_months("bitcoin", "Jan18")
     # update_tracker("2018-01-01", 100)
     # print(json.dumps(num, indent=4, sort_keys=False))

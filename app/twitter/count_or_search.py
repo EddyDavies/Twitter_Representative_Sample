@@ -20,7 +20,6 @@ def bearer_oauth(r):
 
 def connect_to_endpoint(url, params):
     response = requests.request("GET", url, auth=bearer_oauth, params=params)
-    print(response.status_code)
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
     assert response.json() is not None
@@ -36,19 +35,19 @@ def search(query_params):
 
 
 def convert_id_across_response(data):
-    data["data"] = use_id_as__id(data["data"])
+    data["data"] = use_x_as_id(data["data"])
     if data["includes"] is not None:
         if data["includes"]["tweets"] is not None:
-            data["includes"]["tweets"] = use_id_as__id(data["includes"]["tweets"])
+            data["includes"]["tweets"] = use_x_as_id(data["includes"]["tweets"])
         if data["includes"]["users"]:
-            data["includes"]["users"] = use_id_as__id(data["includes"]["users"])
+            data["includes"]["users"] = use_x_as_id(data["includes"]["users"])
     return data
 
 
-def use_id_as__id(data):
+def use_x_as_id(data, x="id"):
     for item in data:
-        item["_id"] = item["id"]
-        del item["id"]
+        item["_id"] = item[x]
+        del item[x]
     return data
 
 
