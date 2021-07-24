@@ -1,8 +1,7 @@
 import requests
 import os
-import json
 
-from twitter.query_helper import twitter_date_format
+from query_helper import twitter_date_format
 
 search_url = "https://api.twitter.com/2/tweets/search/all"
 count_url = "https://api.twitter.com/2/tweets/counts/all"

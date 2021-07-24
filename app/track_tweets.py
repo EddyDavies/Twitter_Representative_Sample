@@ -56,6 +56,7 @@ def save_counts(query, month):
 
 
 if __name__ == '__main__':
-    track_months("bitcoin", "Jan18")
+    track_months("bitcoin", "Jan21")
     # update_tracker("2018-01-01", 100)
     # print(json.dumps(num, indent=4, sort_keys=False))
+

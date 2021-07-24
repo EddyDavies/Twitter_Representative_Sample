@@ -79,5 +79,8 @@ def string_to_datetime(date_string):
     return datetime.strptime(date_string, "%Y-%m-%d")
 
 
+def string_to_month_year(date_string):
+    return datetime.strptime(date_string, "%Y-%m-%d").strftime('%B %y')
+
 if __name__ == "__main__":
     print(json.dumps(get_date_array("Jan17"), indent=4, sort_keys=False))
