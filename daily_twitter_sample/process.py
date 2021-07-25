@@ -1,20 +1,9 @@
 import json
-import os
-from pymongo.errors import BulkWriteError
-from pymongo import MongoClient
 
-# todo Confirm this used across program
-from twitter.count_or_search import use_x_as_id
-from twitter.query_helper import twitter_date_format, twitter_date_format_to_day, string_to_month_year
-
-mongo = MongoClient(os.environ.get('MONGO_CLIENT'))
-db = mongo[os.environ.get('TWITTER_DBNAME', 'bitcoin')]
+from utils import db, twitter_date_format_to_day, string_to_month_year, ignore_duplicates, time_func
 
 
-# todo replace with function that uses mongo search
 # compares the tweet to linked include and select most interacted
-
-
 # collect user followings
 # select random time for next tweet
 # check random time does not overlap
@@ -45,6 +34,7 @@ def sort_through_includes(tweets):
 
 def compare_tweets(original_tweet, include_tweet):
     # compare the public metrics of two tweet and select most impactful
+
     if original_tweet["public_metrics"]["retweet_count"] == include_tweet["public_metrics"]["retweet_count"]:
         if original_tweet["public_metrics"]["like_count"] < include_tweet["public_metrics"]["like_count"]:
             selected_tweet = include_tweet
@@ -60,22 +50,6 @@ def compare_tweets(original_tweet, include_tweet):
         del selected_tweet["referenced_tweets"]
 
     return selected_tweet
-
-
-def collect_follower_counts():
-    
-
-
-# check no duplicates in list of dictionaries
-def check_for_duplicates(dictionary_list, item):
-    items = []
-    for dictionary in dictionary_list:
-        items.append(dictionary[item])
-
-    if len(items) == len(set(items)):
-        return False
-    else:
-        return True
 
 
 def search_by_day(day):
@@ -95,24 +69,33 @@ def save_times(tweets):
         print(f"Counts for {string_to_month_year(date)} have not yet been generated")
 
 
+@time_func
+@ignore_duplicates
+def save_users(tweets, sl=None):
+    if sl is None:
+        users = tweets["includes"]["users"]
+    else:
+        users = tweets["includes"]["users"][sl]
+
+    db["users"].insert_many(users, ordered=False)
+
+
 if __name__ == '__main__':
-    with open("/Users/edwarddavies/Documents/Git/Twitter_Data_Collection/tweets.json") as f:
+    with open("../data/tweets.json") as f:
         tweets = json.load(f)
-    with open("/Users/edwarddavies/Documents/Git/Twitter_Data_Collection/tweets2.json") as f:
+    with open("../data/tweets2.json") as f:
         tweets2 = json.load(f)
+
+    # save_users(tweets, sl=slice(5))
+    duration, _ = save_users(tweets)
+    print(duration)
 
     # sort_through_includes(tweets)
     # db["tweets"].insert_many(tweets["data"])
     # db["tweets"].insert_many(tweets2["data"])
 
-    # try:
-    #     db["users"].insert_many(tweets["includes"]["users"], ordered=False)
-    # except BulkWriteError as e:
-    #     pass
-    # print(len(tweets["includes"]["users"]))
-
     # var = db["tweets"].find({}, {"text": 1, "public_metrics": 1, "_id": 0})
     # [print(x) for x in var]
 
     # search_by_day("2021-01-30")
-    save_times(tweets["data"])
+    # save_times(tweets["data"])
