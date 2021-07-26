@@ -1,35 +1,21 @@
 from datetime import datetime
 from random import randrange
 
-from utils import get_date_range, twitter_date_format_to_day, get_month_array
-from decorators import db, accept_duplicates, time_func
+from utils import get_date_range, twitter_date_format_to_day, get_month_array, twitter_date_format_to_time
+from decorators import db, accept_duplicates
 from count_or_search import count, form_count_query_params
 
 
-def track_months(query: str, month: list):
-    # todo make this check work better
-    # check month is untracked before saving counts
-
-    tracked_months = db["counts"].find_one({"track": "months", "months": month}, {"months": 1, '_id': 0})
-    run = True
-    if tracked_months is not None:
-        if month not in tracked_months["months"]:
-            run = True
-        else:
-            run = False
-    if run:
-        save_counts(query, month)
-        print(f"{month} has been added to MongoDB counts")
-    else:
-        print(f"{month} was already saved in MongoDB counts")
-
-
 def check_counts(months_range: list):
+    # checks the counts that are already stored on mongodb
     tracker = db["counts"].find_one({"_id": "track"}, {"months": 1, "_id": 0})
+    if tracker is None:
+        return [], months_range, []
 
     month_array = get_month_array(months_range)
     tracked_before, tracked_after = [], []
     first_untracked, last_untracked = None, None
+
 
     for month in month_array:
         last_month = month
@@ -52,11 +38,12 @@ def check_counts(months_range: list):
 
 
 @accept_duplicates
-def save_counts(query: str, month_range: list, before: list, after: list, percent=0.1):
+def create_counts(query: str, month_range: list, before: list, after: list, percent=0.1):
     # pull count of tweets for a month or range between two months
 
-    months_array = get_month_array(get_date_range(month_range))
+    months_array = get_month_array(month_range)
 
+    first, last = get_date_range(month_range)
     params = form_count_query_params(query, first, last)
     counts = count_date_range(params)
 
@@ -95,6 +82,15 @@ def form_trackers(counts, percent):
     return tracker
 
 
+def save_times(tweets):
+    date = twitter_date_format_to_day(tweets[0]["created_at"])
+
+    first = twitter_date_format_to_time(tweets[-1]["created_at"])
+    last = twitter_date_format_to_time(tweets[0]["created_at"])
+
+    db["counts"].update_one({"_id": date}, {"$addToSet": {"starts": first, "ends": last}})
+
+
 def update_tracker(day: str, increment: int):
     # update tracker of number of tweets saved
     db["counts"].update_one({"_id": day}, {"$inc": {"tweet_current": increment}})
@@ -106,21 +102,20 @@ def select_rand_time():
 
     rough_time_string = f"{hours}:{minutes}:{seconds}"
 
-    return datetime.strptime(rough_time_string, "%-H:%-M:%-S").strftime("%H:%M:%S")
+    rand_time = datetime.strptime(rough_time_string, "%H:%M:%S").strftime("%H:%M:%S")
+    return rand_time
 
 
-@time_func
 def select_unused_time(day):
     used_times = db["counts"].find_one({"_id": day}, {"starts": 1, "ends": 1, "_id": 0})
 
     while True:
         selected_time = select_rand_time()
-        if used_times is None:
-            break
-        elif time_new(selected_time, used_times):
-            break
-
-    return selected_time
+        if not used_times:
+            return selected_time
+        else:
+            if time_new(selected_time, used_times):
+                return selected_time
 
 
 def time_new(selected_time, used_times):
@@ -132,8 +127,8 @@ def time_new(selected_time, used_times):
 
     starts = used_times["starts"]
     ends = used_times["ends"]
-    for x in range(starts):
-        if time_between(selected_time, starts[x], ends[x]):
+    for x in range(len(starts)):
+        if time_between(time_obj, starts[x], ends[x]):
             return False
     return True
 
@@ -150,13 +145,14 @@ def time_between(time_obj, start, end):
         return False
 
 
-
-
 if __name__ == '__main__':
     # track_months("bitcoin", ["Jan17", "Jun21"])
     # update_tracker("2018-01-01", 100)
     # print(json.dumps(num, indent=4, sort_keys=False))
 
-    months = get_month_array(["Jan 21", "Jun 21"])
-    save_counts("bitcoin", months)
+    # months = get_month_array(["Jan 21", "Jun 21"])
+    # save_counts("bitcoin", months)
     # db["counts"].update_one({"track": "months"}, {"$push": {"months": {"$each": months, "$position": -1}}}, upsert=True)
+
+    time = select_rand_time()
+    print(time)

@@ -1,6 +1,8 @@
 import json
 import os
 import time
+from functools import wraps
+from datetime import datetime, timedelta
 
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
@@ -13,7 +15,7 @@ def accept_duplicates(func):
         try:
             func(*args, **kwargs)
         except BulkWriteError as e:
-            print("Duplicates present but ignoring error.")
+            # print("Duplicates present but ignoring error.")
             pass
 
     return wrap
@@ -30,18 +32,18 @@ def json_print(func):
     return wrap
 
 
-def time_func(func):
-    # Decorator that reports the execution time
+def minimum_execution_time(seconds=3, microseconds=1):
 
-    def wrap(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-
-        duration = end - start
-        return duration, result
-
-    return wrap
+    def wrapper(func):
+        def wrapped(*args, **kwargs):
+            wait_until_time = datetime.utcnow() + timedelta(seconds=seconds, microseconds=microseconds)
+            result = func(*args, **kwargs)
+            if datetime.utcnow() < wait_until_time:
+                seconds_to_sleep = (wait_until_time - datetime.utcnow()).total_seconds()
+                time.sleep(seconds_to_sleep)
+            return result
+        return wrapped
+    return wrapper
 
 
 def extract_env_vars():

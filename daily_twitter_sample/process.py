@@ -1,38 +1,73 @@
 import json
 
-from utils import db, twitter_date_format_to_day, string_to_month_year, ignore_duplicates, time_func
+from track import save_times
+from decorators import db, accept_duplicates
 
 
-# compares the tweet to linked include and select most interacted
-# collect user followings
-# select random time for next tweet
-# check random time does not overlap
-# collect tweets at time
+def store_tweets(response):
+
+    processed_tweets = sort_includes(response)
+    save_times(processed_tweets)
+
+    save_users(response["includes"]["users"])
+
+    tweets_added = len(processed_tweets)
+    return tweets_added
 
 
-def sort_through_includes(tweets):
+@accept_duplicates
+def save_users(users, sl=None):
+    if sl is None:
+        user_slice = users
+    else:
+        user_slice = users[sl]
+
+    db["users"].insert_many(user_slice, ordered=False)
+
+
+def sort_includes(response):
+
     processed_tweets = []
-    # print(json.dumps(tweets, indent=4, sort_keys=False))
-    for tweet in tweets["data"]:
+    for tweet in response["data"]:
         # check a tweet has been referenced
-        if tweet["referenced_tweets"] is not None:
+        if "referenced_tweets" in tweet:
             ref_tweet = tweet["referenced_tweets"][0]
+            full_ref_tweet = response["includes"]["tweets"][0]
+
+            if full_ref_tweet["_id"] == ref_tweet["id"]:  # todo check if this ever fails
+                del response["includes"]["tweets"][0]
+
+            # Compare tweet to retweet and select one with highest engagement
             if ref_tweet["type"] == "retweeted":
-                # Compare tweet to retweet and select one with highest engagement
-                include_tweet = tweets["includes"]["tweets"].pop(0)
-                if include_tweet["id"] == ref_tweet["id"]:  # todo check if this ever fails
-                    selected_tweet = compare_tweets(tweet, include_tweet)
-            elif ref_tweet["replied_to"]:
-                pass
-        #     todo check for quote tweet and
+                processed_tweet = compare_retweet(tweet, full_ref_tweet)
+            # Include public metrics of original tweet in this tweet
+            elif ref_tweet["type"] == "quoted":
+                processed_tweet = attach_quoted(tweet, full_ref_tweet)
+            # Attach to tweet it the reply to
+            elif ref_tweet["type"] == "replied_to":
+                processed_tweet = attach_replied_to(tweet, full_ref_tweet)
         else:
-            selected_tweet = tweet
+            processed_tweet = tweet
+        processed_tweets.append(processed_tweet)
 
-        # author id
-        processed_tweets.append(selected_tweet)
+    return processed_tweets
 
 
-def compare_tweets(original_tweet, include_tweet):
+def attach_quoted(original_tweet, quoted_tweet):
+    quoted_metrics = quoted_tweet["public_metrics"]
+    original_tweet["quoted_metrics"] = quoted_metrics
+
+    return original_tweet
+
+
+def attach_replied_to(original_tweet, replied_to_tweet):
+    del original_tweet["referenced_tweets"]
+    replied_to_tweet["reply"] = original_tweet
+
+    return replied_to_tweet
+
+
+def compare_retweet(original_tweet, include_tweet):
     # compare the public metrics of two tweet and select most impactful
 
     if original_tweet["public_metrics"]["retweet_count"] == include_tweet["public_metrics"]["retweet_count"]:
@@ -52,50 +87,13 @@ def compare_tweets(original_tweet, include_tweet):
     return selected_tweet
 
 
-def search_by_day(day):
+def search_for_day(day):
     regex = f"^{day}*"
     return db["tweets"].find({"created_at": {"$regex": regex}})
 
 
-def save_times(tweets):
-    first = tweets[0]["created_at"]
-    last = tweets[-1]["created_at"]
-
-    date = twitter_date_format_to_day(first)
-    try:
-        db["counts"].update_one({"_id": date}, {"$addToSet": {"starts": first, "ends": last}})
-        print(f"First {first} and Last {last} added to {date}")
-    except:
-        print(f"Counts for {string_to_month_year(date)} have not yet been generated")
-
-
-@time_func
-@ignore_duplicates
-def save_users(tweets, sl=None):
-    if sl is None:
-        users = tweets["includes"]["users"]
-    else:
-        users = tweets["includes"]["users"][sl]
-
-    db["users"].insert_many(users, ordered=False)
-
-
 if __name__ == '__main__':
-    with open("../data/tweets.json") as f:
-        tweets = json.load(f)
     with open("../data/tweets2.json") as f:
-        tweets2 = json.load(f)
+        tweets = json.load(f)
 
-    # save_users(tweets, sl=slice(5))
-    duration, _ = save_users(tweets)
-    print(duration)
-
-    # sort_through_includes(tweets)
-    # db["tweets"].insert_many(tweets["data"])
-    # db["tweets"].insert_many(tweets2["data"])
-
-    # var = db["tweets"].find({}, {"text": 1, "public_metrics": 1, "_id": 0})
-    # [print(x) for x in var]
-
-    # search_by_day("2021-01-30")
-    # save_times(tweets["data"])
+    store_tweets(tweets)

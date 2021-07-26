@@ -1,3 +1,5 @@
+import json
+
 import requests
 import os
 
@@ -46,7 +48,7 @@ def search(query_params):
     return convert_id_across_response(connect_to_endpoint(search_url, query_params))
 
 
-def form_search_query_params(query: str, day: str, time_string=None, max_results=10):
+def form_search_query_params(query: str, day: str, time_string="12:0:0", max_results=10):
     # create count query params in twitter required format
 
     search_query = {
@@ -56,7 +58,7 @@ def form_search_query_params(query: str, day: str, time_string=None, max_results
         'end_time': twitter_date_format(day, time_string=time_string),
         'tweet.fields': 'text,created_at,id,public_metrics',
         'user.fields': 'public_metrics',
-        'expansions': 'referenced_tweets.id,author_id,referenced_tweets.id.author_id,in_reply_to_user_id'
+        'expansions': 'author_id,referenced_tweets.id,referenced_tweets.id.author_id'
     }
     return search_query
 
@@ -83,8 +85,9 @@ if __name__ == "__main__":
 
     count_query_params = form_count_query_params(query, '2021-01-01', '2021-02-01')
     # json_response = count(count_query_params)
-    # print(json.dumps(json_response, indent=4, sort_keys=False))
 
-    search_query_params = form_search_query_params(query, '2021-01-05', '2021-01-30')
-    # json_response = search(search_query_params)
-    # print(json.dumps(json_response, indent=4, sort_keys=False))
+    search_query_params = form_search_query_params(query, '2017-01-27', max_results=500)
+    json_response = search(search_query_params)
+
+    with open("../data/tweets2.json", "w") as f:
+        json.dump(json_response, f, indent=4, sort_keys=False)

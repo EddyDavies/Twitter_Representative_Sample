@@ -22,7 +22,7 @@ def twitter_date_format(date: str, time_string=None, end_of_day=False):
 
     date_obj = datetime.strptime(date, '%Y-%m-%d')
     if time_string is not None:
-        t = datetime.strptime(time, '%H:%M-%S')
+        t = datetime.strptime(time_string, '%H:%M:%S')
         date_obj = date_obj.replace(
             hour=t.hour, minute=t.minute, second=t.second)
 
@@ -40,6 +40,14 @@ def twitter_date_format_to_day(date: str):
     day = datetime.strftime(date_obj, '%Y-%m-%d')
 
     return day
+
+def twitter_date_format_to_time(date: str):
+    # Get day in '%Y-%m-%d' format from exact twitter datetime
+
+    date_obj = datetime.strptime(date.split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+    time_string = datetime.strftime(date_obj, "%H:%M:%S")
+
+    return time_string
 
 
 def string_to_datetime(date: str):
