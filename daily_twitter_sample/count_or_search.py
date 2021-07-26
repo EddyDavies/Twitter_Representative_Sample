@@ -32,33 +32,33 @@ def count(query_params):
 def form_count_query_params(query: str, start: str, end: str, granularity="day"):
     # create search query params in twitter required format
 
-    count_query_params = {
+    count_query = {
         'query': query + " lang:en",
         'granularity': granularity,
         'start_time': twitter_date_format(start),
-        'end_time': twitter_date_format(end, end_of_day=True),
-        'tweet.fields': 'text,created_at,id,public_metrics',
-        'user.fields': 'public_metrics',
-        'expansions': 'referenced_tweets.id,author_id,referenced_tweets.id.author_id,in_reply_to_user_id'
+        'end_time': twitter_date_format(end, end_of_day=True)
     }
     # todo do I need in reply_to_user_id ?
-    return count_query_params
+    return count_query
 
 
 def search(query_params):
     return convert_id_across_response(connect_to_endpoint(search_url, query_params))
 
 
-def form_search_query_params(query: str, start: str, end: str, max_results=10):
+def form_search_query_params(query: str, day: str, time_string=None, max_results=10):
     # create count query params in twitter required format
 
-    search_query_params = {
+    search_query = {
         'query': query + " lang:en",
         'max_results': max_results,
-        'start_time': twitter_date_format(start),
-        'end_time': twitter_date_format(end),
+        'start_time': twitter_date_format(day),
+        'end_time': twitter_date_format(day, time_string=time_string),
+        'tweet.fields': 'text,created_at,id,public_metrics',
+        'user.fields': 'public_metrics',
+        'expansions': 'referenced_tweets.id,author_id,referenced_tweets.id.author_id,in_reply_to_user_id'
     }
-    return search_query_params
+    return search_query
 
 
 def use_x_as_id(data, x="id"):

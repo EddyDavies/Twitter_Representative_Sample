@@ -23,7 +23,7 @@ def extract_env_vars():
 months, query, db = extract_env_vars()
 
 
-def ignore_duplicates(func):
+def accept_duplicates(func):
     # define a decorator to ignore duplicate _id errors
 
     def wrap(*args, **kwargs):
@@ -41,8 +41,7 @@ def json_print(func):
 
     def wrap(*args, **kwargs):
         result = func(*args, **kwargs)
-        if kwargs["print"]:
-            print(json.dumps(get_date_array(result), indent=4, sort_keys=False))
+        print(json.dumps(result, indent=4, sort_keys=False))
         return result
 
     return wrap
@@ -104,6 +103,7 @@ def string_to_month_year(date: str):
     return datetime.strptime(date, "%Y-%m-%d").strftime('%b %y')
 
 
+# @json_print
 def get_date_range(months: list):
     # returns first and last date for a specified month or range between 2 months
 
@@ -123,8 +123,8 @@ def get_date_range(months: list):
     return first, last
 
 
-@json_print
-def get_date_array(first: str, last: str, print=False):
+# @json_print
+def get_date_array(first: str, last: str):
     # get a list of dates from year and month name in '%Y-%m-%d' format
 
     current = datetime.strptime(first, "%Y-%m-%d")
@@ -143,5 +143,6 @@ def get_date_array(first: str, last: str, print=False):
 
 
 if __name__ == "__main__":
-    get_date_array(get_date_range(["Jan 17"]), print=True)
+    first, last = get_date_range(["Jan 17"])
+    get_date_array(first, last)
 
