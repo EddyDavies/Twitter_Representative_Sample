@@ -1,4 +1,5 @@
 import json
+import sys
 
 from decorators import db, accept_duplicates
 from utils import append_or_create_list, twitter_date_format_to_day, twitter_date_format_to_time
@@ -177,8 +178,10 @@ if __name__ == '__main__':
     with open("../data/tweets2.json") as f:
         tweets = json.load(f)
 
-    buggy_date = "2018-01-19"
+
     buggy_date = "2017-04-13"
+    buggy_date = sys.argv[1]
+
     buggy_tracker = db["counts"].find_one({"_id": {"$regex": buggy_date}})
     starts = buggy_tracker["starts"]
     ends = buggy_tracker["ends"]
