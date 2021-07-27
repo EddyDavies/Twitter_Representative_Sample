@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # check tracker exists for the whole specified region for this query
     tracked_before, untracked_months, tracked_after = check_counts(months)
-    create_counts(query, untracked_months, tracked_before, tracked_after, percent=0.01)
+    create_counts(query, untracked_months, tracked_before, tracked_after)
 
     dates = get_date_array(get_date_range(months))
 
