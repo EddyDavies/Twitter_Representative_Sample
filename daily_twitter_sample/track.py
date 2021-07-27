@@ -82,17 +82,6 @@ def form_trackers(counts, percent):
     return tracker
 
 
-def save_times(day, time_range):
-    first, last = time_range
-
-    db["counts"].update_one({"_id": day}, {"$addToSet": {"starts": first, "ends": last}})
-
-
-def update_tracker(day: str, increment: int):
-    # update tracker of number of tweets saved
-    db["counts"].update_one({"_id": day}, {"$inc": {"tweet_current": increment}})
-
-
 def select_rand_time():
     # todo set so not near start of day
     hours, minutes, seconds = randrange(24), randrange(60), randrange(60)

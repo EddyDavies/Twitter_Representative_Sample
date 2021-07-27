@@ -1,6 +1,5 @@
 import json
 
-from track import save_times, update_tracker
 from decorators import db, accept_duplicates
 from utils import append_or_create_list, twitter_date_format_to_day, twitter_date_format_to_time
 
@@ -16,22 +15,36 @@ def save_users(users, sl=None):
 
 
 @accept_duplicates
-def save_extra_days(extra_day_tweets):
+def save_tweets(tweets):
+    db["tweets"].insert_many(tweets)
+
+
+def save_extra_tweets(extra_day_tweets):
+    # for each day save the tweets and update the tracker
 
     for day, tweets in extra_day_tweets.items():
-        db["tweets"][day].insert_many(tweets)
-        update_tracker(day, len(tweets))
+        save_tweets(tweets)
+        db["counts"].update_one({"_id": day}, {"$inc": {"tweet_current": len(tweets)}})
 
 
 def store_tweets(response, day):
 
-    processed_tweets, extra_day_tweets, time_range = sort_tweets(response, day)
+    processed_tweets, extra_day_tweets, first, last = sort_tweets(response, day)
 
-    save_times(day, time_range)
-    save_extra_days(extra_day_tweets)
+    # save_tweets(processed_tweets, extra_day_tweets)
+    save_tweets(processed_tweets)
+
+    save_extra_tweets(extra_day_tweets)
+
+    # Update the times covered in day tracker in counts collection
+    db["counts"].update_one({"_id": day}, {"$addToSet": {"starts": first, "ends": last}})
+
+    # track number of tweets added
+    tweets_added = len(processed_tweets)
+    db["counts"].update_one({"_id": day}, {"$inc": {"tweet_current": tweets_added}})
+
     save_users(response["includes"]["users"])
 
-    tweets_added = len(processed_tweets)
     return tweets_added
 
 
@@ -59,7 +72,7 @@ def sort_tweets(response, day):
 
     processed_tweets += processed_ref_tweets
 
-    return processed_tweets, extra_day_tweets, (original_earliest_time, original_latest_time)
+    return processed_tweets, extra_day_tweets, original_earliest_time, original_latest_time
 
 
 def sort_referenced_tweet(tweet, referenced_tweets):
