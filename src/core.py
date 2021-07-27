@@ -1,4 +1,4 @@
-from datetime import time
+import math
 
 from count_or_search import search, form_search_query_params
 from process import store_tweets
@@ -8,10 +8,14 @@ from decorators import months, query, db, minimum_execution_time
 
 
 @minimum_execution_time(3, 1)
-def collect(query, day):
+def collect(query, day, tweets_remaining):
     end = select_unused_time(day)
 
-    response = search(form_search_query_params(query, day, end, 500))
+    max_results = 500
+    if tweets_remaining < max_results:
+        max_results = math.ceil(tweet_remaining/10)*10
+        
+    response = search(form_search_query_params(query, day, end, max_results))
 
     tweets_added = store_tweets(response, day)
 
@@ -33,7 +37,8 @@ if __name__ == '__main__':
 
         while tweet_current <= tweet_target:
 
-            tweet_added = collect(query, day)
+            tweet_remaining = tweet_target - tweet_current
+            tweet_added = collect(query, day, tweet_remaining)
             tweet_current += tweet_added
 
             print(f"\r{tweet_current}/{tweet_target} Tweets Collected for {day}", end="")

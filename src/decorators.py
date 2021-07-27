@@ -40,7 +40,7 @@ def minimum_execution_time(seconds=3, microseconds=1):
             result = func(*args, **kwargs)
             if datetime.utcnow() < wait_until_time:
                 seconds_to_sleep = (wait_until_time - datetime.utcnow()).total_seconds()
-                print(f"\t Waited {seconds_to_sleep} seconds", end="")
+                print(f" Waited {seconds_to_sleep} seconds", end="")
                 time.sleep(seconds_to_sleep)
             return result
         return wrapped
