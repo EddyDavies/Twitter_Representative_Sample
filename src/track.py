@@ -1,6 +1,7 @@
 from datetime import datetime
 from random import randrange
 
+from src.process import fix_array_misalignment
 from utils import get_date_range, twitter_date_format_to_day, get_month_array, twitter_date_format_to_time
 from decorators import db, accept_duplicates
 from count_or_search import count, form_count_query_params
@@ -9,12 +10,14 @@ from count_or_search import count, form_count_query_params
 def check_counts(months_range: list):
     # checks the counts that are already stored on mongodb
     tracker = db["counts"].find_one({"_id": "months"}, {"months": 1, "_id": 0})
-    tracker_months = tracker["months"]
-    months_array = get_month_array(months_range)
 
     if tracker is None:
         return False, months_range
-    elif months_array == tracker_months:
+
+    tracker_months = tracker["months"]
+    months_array = get_month_array(months_range)
+
+    if months_array == tracker_months:
         return True, months_range
     elif set(tracker_months).issubset(set(months_array)):
         return False, months_range
@@ -102,11 +105,11 @@ def select_unused_time(day):
         if not used_times:
             return selected_time
         else:
-            if time_new(selected_time, used_times):
+            if time_new(selected_time, used_times, day):
                 return selected_time
 
 
-def time_new(selected_time, used_times):
+def time_new(selected_time, used_times, day):
     time_obj = datetime.strptime(selected_time, "%H:%M:%S")
     start_of_day = datetime.strptime("00:30:00", "%H:%M:%S")
 
@@ -116,7 +119,11 @@ def time_new(selected_time, used_times):
     starts = used_times["starts"]
     ends = used_times["ends"]
     for x in range(len(starts)):
-        if time_between(time_obj, starts[x], ends[x]):
+        try:
+            if time_between(time_obj, starts[x], ends[x]):
+                return False
+        except:
+            fix_array_misalignment(day)
             return False
     return True
 
