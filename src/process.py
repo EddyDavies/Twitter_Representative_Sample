@@ -175,21 +175,16 @@ def extract_wrong_days(processed_ref_tweets, day):
 
 
 if __name__ == '__main__':
-    # with open("../data/tweets2.json") as f:
-    #     tweets = json.load(f)
 
     buggy_date = "2017-04-13"
-    buggy_date = sys.argv[1]
+    if len(sys.argv) > 1:
+        buggy_date = sys.argv[1]
 
-    buggy_tracker = db["counts"].find_one({"_id": {"$regex": buggy_date}})
-    starts = buggy_tracker["starts"]
-    ends = buggy_tracker["ends"]
+    buggy_tracker = db["counts"].find_one({"_id": {"$regex": buggy_date}}, {"_id": 0})
 
-    if len(ends) > len(starts):
-        del ends[-1]
-    elif len(ends) < len(starts):
-        del starts[-1]
+    if len(buggy_tracker["ends"]) > len(buggy_tracker["starts"]):
+        del buggy_tracker["ends"][-1]
+    elif len(buggy_tracker["starts"]) > len(buggy_tracker["ends"]):
+        del buggy_tracker["starts"][-1]
 
-    db["counts"].update_one({"_id": "track"}, {"$set": {"ends": ends, "starts": starts}}, upsert=True)
-
-    # store_tweets(tweets)
+    db["counts"].replace_one({"_id": buggy_date}, buggy_tracker)
