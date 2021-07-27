@@ -138,5 +138,11 @@ if __name__ == '__main__':
     # save_counts("bitcoin", months)
     # db["counts"].update_one({"track": "months"}, {"$push": {"months": {"$each": months, "$position": -1}}}, upsert=True)
 
-    time = select_rand_time()
-    print(time)
+    total = 0
+    cursor = db["counts"].find({"_id": {"$regex": '^\d*-\d*-\d*'}}, {"tweet_target": 1, "_id": 0})
+    for day in cursor:
+        total += day["tweet_target"]
+        print(f"\rTotal={total}", end="")
+
+
+
