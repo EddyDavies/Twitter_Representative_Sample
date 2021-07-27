@@ -8,7 +8,7 @@ from count_or_search import count, form_count_query_params
 
 def check_counts(months_range: list):
     # checks the counts that are already stored on mongodb
-    tracker = db["counts"].find_one({"_id": "track"}, {"months": 1, "_id": 0})
+    tracker = db["counts"].find_one({"_id": "months"}, {"months": 1, "_id": 0})
     tracker_months = tracker["months"]
     months_array = get_month_array(months_range)
 
@@ -48,7 +48,7 @@ def create_counts(query: str, month_range: list, percent=0.1):
     save_tracker(tracker)
 
     full_months_array = months_array
-    db["counts"].update_one({"_id": "track"}, {"$set": {"months":  full_months_array}}, upsert=True)
+    db["counts"].update_one({"_id": "months"}, {"$set": {"months":  full_months_array}}, upsert=True)
 
 
 @accept_duplicates
