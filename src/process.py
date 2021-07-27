@@ -175,9 +175,8 @@ def extract_wrong_days(processed_ref_tweets, day):
 
 
 if __name__ == '__main__':
-    with open("../data/tweets2.json") as f:
-        tweets = json.load(f)
-
+    # with open("../data/tweets2.json") as f:
+    #     tweets = json.load(f)
 
     buggy_date = "2017-04-13"
     buggy_date = sys.argv[1]
