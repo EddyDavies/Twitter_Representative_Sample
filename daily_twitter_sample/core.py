@@ -12,7 +12,7 @@ def collect(query, day):
     end = select_unused_time(day)
     response = search(form_search_query_params(query, day, end, 500))
 
-    tweets_added = store_tweets(response)
+    tweets_added = store_tweets(response, day)
     update_tracker(day, tweets_added)
 
     return tweets_added

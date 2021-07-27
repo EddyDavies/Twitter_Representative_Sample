@@ -3,6 +3,8 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import List
 
+from decorators import db
+
 
 def check_for_duplicates(dictionary_list, item):
     # check no duplicates in list of dictionaries
@@ -130,3 +132,15 @@ if __name__ == "__main__":
     print(get_date_array(get_date_range(["Jan 17"])))
 
     # months = get_month_array(["Jan 18", "Jun 21"])
+
+
+def append_or_create_list(type: str, tweet_storage: dict, tweet: dict):
+    if type not in tweet_storage:
+        tweet_storage[type] = [tweet]
+    else:
+        tweet_storage[type].append(tweet)
+
+
+def search_for_day(day):
+    regex = f"^{day}*"
+    return db["tweets"].find({"created_at": {"$regex": regex}})

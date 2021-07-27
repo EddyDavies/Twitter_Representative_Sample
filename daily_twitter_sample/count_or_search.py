@@ -58,7 +58,8 @@ def form_search_query_params(query: str, day: str, time_string="12:0:0", max_res
         'end_time': twitter_date_format(day, time_string=time_string),
         'tweet.fields': 'text,created_at,id,public_metrics',
         'user.fields': 'public_metrics',
-        'expansions': 'author_id,referenced_tweets.id,referenced_tweets.id.author_id'
+        'expansions': 'referenced_tweets.id,author_id,referenced_tweets.id.author_id,in_reply_to_user_id'
+        # 'expansions': 'author_id,referenced_tweets.id,referenced_tweets.id.author_id'
     }
     return search_query
 

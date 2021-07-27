@@ -82,13 +82,10 @@ def form_trackers(counts, percent):
     return tracker
 
 
-def save_times(tweets):
-    date = twitter_date_format_to_day(tweets[0]["created_at"])
+def save_times(day, time_range):
+    first, last = time_range
 
-    first = twitter_date_format_to_time(tweets[-1]["created_at"])
-    last = twitter_date_format_to_time(tweets[0]["created_at"])
-
-    db["counts"].update_one({"_id": date}, {"$addToSet": {"starts": first, "ends": last}})
+    db["counts"].update_one({"_id": day}, {"$addToSet": {"starts": first, "ends": last}})
 
 
 def update_tracker(day: str, increment: int):
@@ -137,9 +134,7 @@ def time_between(time_obj, start, end):
     start_obj = datetime.strptime(start, "%H:%M:%S")
     end_obj = datetime.strptime(end, "%H:%M:%S")
 
-    if time_obj > start_obj:
-        return True
-    elif time_obj < end_obj: # todo test to see if will overlap
+    if start_obj < time_obj < end_obj: # todo test to see if will overlap
         return True
     else:
         return False
