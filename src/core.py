@@ -1,4 +1,5 @@
 import math
+import subprocess
 
 from count_or_search import search, form_search_query_params
 from process import store_tweets
@@ -13,7 +14,9 @@ def collect(query, day, tweets_remaining):
 
     max_results = 500
     if tweets_remaining < max_results:
-        max_results = math.ceil(tweet_remaining/10)*10+20
+        max_results = math.ceil(tweet_remaining/10)*10
+        if max_results < 50:
+            max_results += 20
         
     response = search(form_search_query_params(query, day, end, max_results))
 
@@ -42,3 +45,6 @@ if __name__ == '__main__':
             tweet_current += tweet_added
 
             print(f"\r{tweet_current}/{tweet_target} Tweets Collected for {day}", end="")
+    
+
+    subprocess.run(["shutdown", "-h", "now"])
