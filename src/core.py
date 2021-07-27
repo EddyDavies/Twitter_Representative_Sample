@@ -13,7 +13,7 @@ def collect(query, day, tweets_remaining):
 
     max_results = 500
     if tweets_remaining < max_results:
-        max_results = math.ceil(tweet_remaining/10)*10
+        max_results = math.ceil(tweet_remaining/10)*10+20
         
     response = search(form_search_query_params(query, day, end, max_results))
 
