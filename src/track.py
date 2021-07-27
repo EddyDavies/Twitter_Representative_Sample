@@ -9,36 +9,33 @@ from count_or_search import count, form_count_query_params
 def check_counts(months_range: list):
     # checks the counts that are already stored on mongodb
     tracker = db["counts"].find_one({"_id": "track"}, {"months": 1, "_id": 0})
+    tracker_months = tracker["months"]
+    months_array = get_month_array(months_range)
+
     if tracker is None:
-        return [], months_range, []
+        return False, months_range
+    elif months_array == tracker_months:
+        return True, months_range
+    elif set(tracker_months).issubset(set(months_array)):
+        return False, months_range
+    else:
+        first_tracked = datetime.strptime(tracker_months[0], "%b %y")
+        last_tracked = datetime.strptime(tracker_months[-1], "%b %y")
+        first = datetime.strptime(months_array[0], "%b %y")
+        last = datetime.strptime(months_array[-1], "%b %y")
 
-    month_array = get_month_array(months_range)
-    tracked_before, tracked_after = [], []
-    first_untracked, last_untracked = None, None
+        if first_tracked < first:
+            first = first_tracked
+        if last_tracked > last:
+            last = last_tracked
 
+    first = datetime.strftime(first, "%b %y")
+    last = datetime.strftime(last, "%b %y")
 
-    for month in month_array:
-        last_month = month
-
-        if month in tracker:
-            if first_untracked is None:
-                tracked_before.append(month)
-            elif last_untracked is not None:
-                tracked_after = []
-        else:
-            if first_untracked is None:
-                first_untracked = month
-            elif last_untracked is None or tracked_after is []:
-                last_untracked = last_month
-                tracked_after.append(month)
-            else:
-                tracked_after.append(month)
-
-    return tracked_before, [first_untracked, last_untracked], tracked_after
+    return False, [first, last]
 
 
-@accept_duplicates
-def create_counts(query: str, month_range: list, before: list, after: list, percent=0.1):
+def create_counts(query: str, month_range: list, percent=0.1):
     # pull count of tweets for a month or range between two months
 
     months_array = get_month_array(month_range)
@@ -48,10 +45,15 @@ def create_counts(query: str, month_range: list, before: list, after: list, perc
     counts = count_date_range(params)
 
     tracker = form_trackers(counts, percent)
-    db["counts"].insert_many(tracker)
+    save_tracker(tracker)
 
-    full_months_array = before + months_array + after
-    db["counts"].update_one({"_id": "months"}, {"$set": {"months":  full_months_array}}, upsert=True)
+    full_months_array = months_array
+    db["counts"].update_one({"_id": "track"}, {"$set": {"months":  full_months_array}}, upsert=True)
+
+
+@accept_duplicates
+def save_tracker(tracker):
+    db["counts"].insert_many(tracker)
 
 
 def count_date_range(params):

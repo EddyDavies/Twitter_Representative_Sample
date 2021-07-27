@@ -28,8 +28,9 @@ def collect(query, day, tweets_remaining):
 if __name__ == '__main__':
 
     # check tracker exists for the whole specified region for this query
-    tracked_before, untracked_months, tracked_after = check_counts(months)
-    create_counts(query, untracked_months, tracked_before, tracked_after)
+    tracker_matches, months_range = check_counts(months)
+    if not tracker_matches:
+        create_counts(query, months_range)
 
     dates = get_date_array(get_date_range(months))
 

@@ -177,4 +177,17 @@ if __name__ == '__main__':
     with open("../data/tweets2.json") as f:
         tweets = json.load(f)
 
+    buggy_date = "2018-01-19"
+    buggy_date = "2017-04-13"
+    buggy_tracker = db["counts"].find_one({"_id": {"$regex": buggy_date}})
+    starts = buggy_tracker["starts"]
+    ends = buggy_tracker["ends"]
+
+    if len(ends) > len(starts):
+        del ends[-1]
+    elif len(ends) < len(starts):
+        del starts[-1]
+
+    db["counts"].update_one({"_id": "track"}, {"$set": {"ends": ends, "starts": starts}}, upsert=True)
+
     # store_tweets(tweets)
