@@ -1,5 +1,6 @@
 import math
 import subprocess
+import time
 
 from count_or_search import search, form_search_query_params
 from process import store_tweets
@@ -17,8 +18,14 @@ def collect(query, day, tweets_remaining):
         max_results = math.ceil(tweet_remaining/10)*10
         if max_results < 50:
             max_results += 20
-        
-    response = search(form_search_query_params(query, day, end, max_results))
+
+    response = None
+    while response is None:
+        try:
+            response = search(form_search_query_params(query, day, end, max_results))
+        except:
+            print(f"API Response Error, sleeping for a minute.")
+            time.sleep(60)
 
     tweets_added = store_tweets(response, day)
 
