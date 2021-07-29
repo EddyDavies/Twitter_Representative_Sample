@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, timezone
 from typing import List
 
 from decorators import db
-from src.decorators import db
 
 
 def check_for_duplicates(dictionary_list, item):
