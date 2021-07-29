@@ -1,7 +1,6 @@
 from datetime import datetime
 from random import randrange
 
-from src.utils import fix_array_misalignment
 from utils import get_date_range, twitter_date_format_to_day, get_month_array, twitter_date_format_to_time
 from decorators import db, accept_duplicates
 from count_or_search import count, form_count_query_params
