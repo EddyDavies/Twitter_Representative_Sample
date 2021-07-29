@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List
 
 from decorators import db
+from src.decorators import db
 
 
 def check_for_duplicates(dictionary_list, item):
@@ -134,13 +135,27 @@ if __name__ == "__main__":
     # months = get_month_array(["Jan 18", "Jun 21"])
 
 
-def append_or_create_list(type: str, tweet_storage: dict, tweet: dict):
-    if type not in tweet_storage:
-        tweet_storage[type] = [tweet]
+def append_or_create_list(key: str, container: dict, content: dict):
+    if key not in container:
+        container[key] = [content]
     else:
-        tweet_storage[type].append(tweet)
+        container[key].append(content)
+    return container
 
 
 def search_for_day(day):
     regex = f"^{day}*"
     return db["tweets"].find({"created_at": {"$regex": regex}})
+
+
+def fix_array_misalignment(day):
+    buggy_tracker = db["counts"].find_one({"_id": {"$regex": day}}, {"_id": 0})
+    if len(buggy_tracker["ends"]) > len(buggy_tracker["starts"]):
+        print("   Last End " + buggy_tracker["ends"][-1])
+        del buggy_tracker["ends"][-1]
+
+    elif len(buggy_tracker["starts"]) > len(buggy_tracker["ends"]):
+        print("   Last Start " + buggy_tracker["starts"][-1])
+        del buggy_tracker["starts"][-1]
+
+    db["counts"].replace_one({"_id": day}, buggy_tracker)

@@ -52,7 +52,7 @@ def form_search_query_params(query: str, day: str, time_string="12:0:0", max_res
     # create count query params in twitter required format
 
     search_query = {
-        'query': query + " lang:en",
+        'query': query + " lang:en -is:retweet",
         'max_results': max_results,
         'start_time': twitter_date_format(day),
         'end_time': twitter_date_format(day, time_string=time_string),

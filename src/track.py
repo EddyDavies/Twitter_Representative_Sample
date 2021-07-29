@@ -1,7 +1,7 @@
 from datetime import datetime
 from random import randrange
 
-from process import fix_array_misalignment
+from src.utils import fix_array_misalignment
 from utils import get_date_range, twitter_date_format_to_day, get_month_array, twitter_date_format_to_time
 from decorators import db, accept_duplicates
 from count_or_search import count, form_count_query_params
@@ -98,7 +98,7 @@ def select_rand_time():
 
 
 def select_unused_time(day):
-    used_times = db["counts"].find_one({"_id": day}, {"starts": 1, "ends": 1, "_id": 0})
+    used_times = db["counts"].find_one({"_id": day}, {"times": 1, "_id": 0})
 
     while True:
         selected_time = select_rand_time()
@@ -116,14 +116,9 @@ def time_new(selected_time, used_times, day):
     if time_obj < start_of_day:
         return False
 
-    starts = used_times["starts"]
-    ends = used_times["ends"]
-    for x in range(len(starts)):
-        try:
-            if time_between(time_obj, starts[x], ends[x]):
-                return False
-        except:
-            fix_array_misalignment(day)
+    times = used_times["times"]
+    for time in times:
+        if time_between(time_obj, time[0], time[1]):
             return False
     return True
 
