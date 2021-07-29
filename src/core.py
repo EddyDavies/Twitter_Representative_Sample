@@ -23,8 +23,9 @@ def collect(query, day, tweets_remaining):
     while response is None:
         try:
             response = search(form_search_query_params(query, day, end, max_results))
-        except:
-            print(f"API Response Error, sleeping for a minute.")
+        except Exception as e:
+            print(f"  API Response Error, sleeping for a minute.")
+            print(e)
             time.sleep(60)
 
     tweets_added = store_tweets(response, day)
