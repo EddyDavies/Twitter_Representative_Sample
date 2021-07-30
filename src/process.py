@@ -120,7 +120,6 @@ def replace_tweets_to_mongo(tweets):
         tweet_id = tweet["_id"]
         del tweet["_id"]
         db["tweets"].replace_one({"_id": tweet_id}, tweet)
-    db["tweets"].insert_many(tweets)
 
 
 @accept_duplicates
