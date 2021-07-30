@@ -35,8 +35,12 @@ def sort_tweets(response, day):
         else:
             unprocessed_tweets.append(tweet)
 
+    if "tweets" in response["includes"]:
+        ref_tweets = response["includes"]["tweets"]
+    else:
+        ref_tweets = []
     combined_tweets, unedited_tweets = sort_referenced_tweet(
-        quotes_or_replies, quotes_or_replies_ids,  response["includes"]["tweets"])
+        quotes_or_replies, quotes_or_replies_ids, ref_tweets)
 
     new_tweets = unprocessed_tweets + unedited_tweets
     all_tweets = unprocessed_tweets + unedited_tweets + combined_tweets
