@@ -82,7 +82,7 @@ def use_x_as_id(data, x="id"):
 
 def convert_id_across_response(data):
     data["data"] = use_x_as_id(data["data"])
-    if "tweets" in data:
+    if "includes" in data:
         if "tweets" in data["includes"]:
             data["includes"]["tweets"] = use_x_as_id(data["includes"]["tweets"])
         if "users" in data["includes"]:
