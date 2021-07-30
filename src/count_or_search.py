@@ -44,7 +44,7 @@ def form_count_query_params(query: str, start: str, end: str, granularity="day")
     # create search query params in twitter required format
 
     count_query = {
-        'query': query + " lang:en",
+        'query': query + " lang:en -is:retweet",
         'granularity': granularity,
         'start_time': twitter_date_format(start),
         'end_time': twitter_date_format(end, end_of_day=True)
