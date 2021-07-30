@@ -1,4 +1,5 @@
 import json
+import time
 
 import requests
 import os
@@ -20,9 +21,17 @@ def bearer_oauth(r):
 
 
 def connect_to_endpoint(url, params):
-    response = requests.request("GET", url, auth=bearer_oauth, params=params)
+    response = None
+    while response is None:
+        try:
+            response = requests.request("GET", url, auth=bearer_oauth, params=params)
+        except requests.ConnectionError as e:
+            print(f"\n  API Response Error, sleeping for a minute.")
+            print(e)
+            time.sleep(60)
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
+
     assert response.json() is not None
     return response.json()
 
@@ -73,10 +82,10 @@ def use_x_as_id(data, x="id"):
 
 def convert_id_across_response(data):
     data["data"] = use_x_as_id(data["data"])
-    if data["includes"] is not None:
-        if data["includes"]["tweets"] is not None:
+    if "tweets" in data:
+        if "tweets" in data["includes"]:
             data["includes"]["tweets"] = use_x_as_id(data["includes"]["tweets"])
-        if data["includes"]["users"]:
+        if "users" in data["includes"]:
             data["includes"]["users"] = use_x_as_id(data["includes"]["users"])
     return data
 
