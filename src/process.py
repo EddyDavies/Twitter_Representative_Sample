@@ -1,4 +1,4 @@
-from decorators import db, accept_duplicates
+from decorators import db, db_share, accept_duplicates
 from utils import append_or_create_list, twitter_date_format_to_day, twitter_date_format_to_time
 
 
@@ -129,7 +129,7 @@ def save_users_to_mongo(users, sl=None):
     else:
         user_slice = users[sl]
 
-    db["users"].insert_many(user_slice, ordered=False)
+    db_share["users"].insert_many(user_slice, ordered=False)
 
 
 if __name__ == '__main__':
