@@ -54,7 +54,11 @@ def form_count_query_params(query: str, start: str, end: str, granularity="day")
 
 
 def search(query_params):
-    return convert_id_across_response(connect_to_endpoint(search_url, query_params))
+    response = connect_to_endpoint(search_url, query_params)
+    if response is None:
+        print("Response is None")
+        print(f"Search for {query_params}")
+    return convert_id_across_response(response)
 
 
 def form_search_query_params(query: str, day: str, time_string="12:0:0", max_results=10):
