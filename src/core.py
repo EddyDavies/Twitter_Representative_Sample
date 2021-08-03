@@ -39,7 +39,9 @@ if __name__ == '__main__':
         tweet_current, tweet_target = counts["tweet_current"], counts["tweet_target"]
         print(f"\n{tweet_current}/{tweet_target} Tweets Collected for {day}", end="")
 
-        while tweet_current <= tweet_target:
+        while True:
+            if tweet_current >= tweet_target:
+                break
 
             tweet_remaining = tweet_target - tweet_current
             tweet_added = collect(query, day, tweet_remaining)
