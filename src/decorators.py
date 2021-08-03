@@ -53,7 +53,7 @@ def extract_env_vars():
 
     mongo = MongoClient(os.environ.get('MONGO_CLIENT'))
     q = os.environ.get('TWITTER_QUERY')
-    dbname = os.environ.get('TWITTER_DBNAME', q.split(" ")[0] + "_extended")
+    dbname = os.environ.get('TWITTER_DBNAME')
     # todo maybe change
 
     return months_list, q, mongo[dbname], mongo["shared"]
