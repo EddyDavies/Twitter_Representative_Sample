@@ -5,8 +5,8 @@ from count_or_search import search, form_search_query_params
 from process import store_tweets
 from track import create_counts, check_counts, select_unused_time
 from utils import get_date_range, get_date_array
-from decorators import months, query, db, minimum_execution_time
-
+from decorators import minimum_execution_time
+from mongo import months, query, db
 
 @minimum_execution_time(3, 1)
 def collect(query, day, tweets_remaining, begin=None):
