@@ -41,10 +41,13 @@ def minimum_execution_time(seconds=3, microseconds=1):
             if datetime.utcnow() < wait_until_time:
                 seconds_to_sleep = (wait_until_time - datetime.utcnow()).total_seconds()
                 # Checks if anything has been provided to print before the time waited
-                if "begin" in kwargs:
+                try:
                     begin_with = kwargs["begin"]
-                    print(f"\r{begin_with}   Waited {seconds_to_sleep} seconds until {wait_until_time}", end="")
-                else:
+                    if not begin_with:
+                        print(f"\r{begin_with}   Waited {seconds_to_sleep} seconds until {wait_until_time}", end="")
+                    else:
+                        raise KeyError
+                except KeyError:
                     print(f"  Waited {seconds_to_sleep} seconds until {wait_until_time}", end="")
                 time.sleep(seconds_to_sleep)
             return result
