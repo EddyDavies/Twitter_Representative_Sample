@@ -9,7 +9,7 @@ from decorators import months, query, db, minimum_execution_time
 
 
 @minimum_execution_time(3, 1)
-def collect(query, day, tweets_remaining):
+def collect(query, day, tweets_remaining, **kwargs):
     end = select_unused_time(day)
 
     max_results = 500
