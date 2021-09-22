@@ -37,14 +37,15 @@ if __name__ == '__main__':
     for day in dates:
         counts = db["counts"].find_one({"_id": day}, {"tweet_current": 1, "tweet_target": 1, "_id": 0})
         tweet_current, tweet_target = counts["tweet_current"], counts["tweet_target"]
-        print(f"\n{tweet_current}/{tweet_target} Tweets Collected for {day}", end="")
+        current_tracking = f"\n{tweet_current}/{tweet_target} Tweets Collected for {day}"
+        print(current_tracking, end="")
 
         while True:
             if tweet_current >= tweet_target:
                 break
 
             tweet_remaining = tweet_target - tweet_current
-            tweet_added = collect(query, day, tweet_remaining)
+            tweet_added = collect(query, day, tweet_remaining, begin=current_tracking)
             tweet_current += tweet_added
 
             print(f"\r{tweet_current}/{tweet_target} Tweets Collected for {day}", end="")
