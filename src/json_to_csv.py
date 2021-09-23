@@ -16,7 +16,8 @@ if __name__ == '__main__':
     if months:
         date_range = get_date_array(get_date_range(months))
     elif dates:
-        date_range = get_date_array((dates[0], dates[1]))
+        dates_tup = (dates[0], dates[1])
+        date_range = get_date_array(dates_tup)
 
 
     for day in date_range:
