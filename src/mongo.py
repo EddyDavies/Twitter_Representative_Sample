@@ -2,6 +2,8 @@ import os
 from pymongo import MongoClient
 
 def extract_env_vars():
+    dates_string = None
+    
     m = os.environ.get("TWITTER_MONTHS")
     if m:
         m = m.split(" ")
