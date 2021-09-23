@@ -17,9 +17,9 @@ def extract_env_vars():
     dbname = os.environ.get('TWITTER_DBNAME')
     # todo maybe change
 
-    if m:
+    if months:
         print(f"Query: {q}, DBName: {dbname}, Date: {months[0]} to {months[1]}")
-    elif d:
+    elif dates:
         print(f"Query: {q}, DBName: {dbname}, Date: {dates[0]} to {dates[1]}")
 
     print(mongo_url)
