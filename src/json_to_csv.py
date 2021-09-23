@@ -12,7 +12,8 @@ def find_days_docs(day, db):
 
 
 if __name__ == '__main__':
-    print(dates)
+    print(dates[0])
+    print(dates[1])
     print(months)
 
     # get a list of all the days in the
