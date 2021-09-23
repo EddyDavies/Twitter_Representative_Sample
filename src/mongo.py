@@ -11,7 +11,7 @@ def extract_env_vars():
         dates_string = f"{m[0]} to {m[1]}"
 
     d = os.environ.get("TWITTER_DATES")
-    if m:
+    if d:
         d = d.split(" ")
         dates_string = f"{d[0]} to {d[1]}"
 
