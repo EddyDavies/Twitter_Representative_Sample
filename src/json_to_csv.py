@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 from normaliser import normalizeTweet
-from mongo import db, months
+from mongo import db, months, dates
 from utils import get_date_array, get_date_range, string_to_month_year
 
 
@@ -13,9 +13,13 @@ def find_days_docs(day, db):
 
 if __name__ == '__main__':
     # get a list of all the days in the
-    dates = get_date_array(get_date_range(months))
+    if months:
+        date_range = get_date_array(get_date_range(months))
+    elif dates:
+        date_range = get_date_array((dates[0], dates[1]))
 
-    for day in dates:
+
+    for day in date_range:
         df = pd.DataFrame()
 
 
