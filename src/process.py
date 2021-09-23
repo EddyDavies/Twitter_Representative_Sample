@@ -1,5 +1,6 @@
-from decorators import db, db_share, accept_duplicates
+from decorators import accept_duplicates
 from utils import append_or_create_list, twitter_date_format_to_day, twitter_date_format_to_time
+from mongo import db, db_share
 
 
 def store_tweets(response, day):
