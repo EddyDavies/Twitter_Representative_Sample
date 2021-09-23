@@ -13,11 +13,11 @@ def find_days_docs(day, db):
 
 if __name__ == '__main__':
     # get a list of all the days in the
-    if months:
-        date_range = get_date_array(get_date_range(months))
-    elif dates:
+    if dates:
         dates_tup = (dates[0], dates[1])
         date_range = get_date_array(dates_tup)
+    elif months:
+        date_range = get_date_array(get_date_range(months))
 
 
     for day in date_range:
