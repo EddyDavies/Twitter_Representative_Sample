@@ -6,10 +6,12 @@ def extract_env_vars():
     if m:
         m = m.split(" ")
         months = list(map(' '.join, zip(m[::2], m[1::2])))
+        dates_string = f"{months[0]} to {months[1]}"
 
     d = os.environ.get("TWITTER_DATES")
     if m:
         dates = d.split(" ")
+        dates_string = f"{dates[0]} to {dates[1]}"
 
     mongo_url = os.environ.get('MONGO_CLIENT')
     mongo = MongoClient(mongo_url)
@@ -17,11 +19,7 @@ def extract_env_vars():
     dbname = os.environ.get('TWITTER_DBNAME')
     # todo maybe change
 
-    if months:
-        print(f"Query: {q}, DBName: {dbname}, Date: {months[0]} to {months[1]}")
-    elif dates:
-        print(f"Query: {q}, DBName: {dbname}, Date: {dates[0]} to {dates[1]}")
-
+    print(f"Query: {q}, DBName: {dbname}, Date: {dates_string}")
     print(mongo_url)
 
     return dates, months, q, mongo[dbname], mongo["shared"]
