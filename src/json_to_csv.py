@@ -12,6 +12,9 @@ def find_days_docs(day, db):
 
 
 if __name__ == '__main__':
+    print(dates)
+    print(months)
+
     # get a list of all the days in the
     if dates:
         dates_tup = (dates[0], dates[1])
