@@ -86,6 +86,9 @@ def get_date_range(months: list):
 def get_date_array(date_range: tuple):
     # get a list of dates from year and month name in '%Y-%m-%d' format
     first, last = date_range
+    print(first)
+    print(last)
+
 
     current = datetime.strptime(first, "%Y-%m-%d")
     last = datetime.strptime(last, "%Y-%m-%d")
