@@ -6,7 +6,8 @@ from count_or_search import search, form_search_query_params
 from process import store_tweets
 from track import create_counts, check_counts, select_unused_time
 from utils import get_date_range, get_date_array
-from decorators import months, query, db, minimum_execution_time
+from decorators import minimum_execution_time
+from mongo import months, query, db
 
 
 @minimum_execution_time(3, 1)
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     percent = 0.1
     if len(sys.argv) > 1:
         percent = sys.argv[1]
-        
+
     # check tracker exists for the whole specified region for this query
     tracker_matches, months_range = check_counts(months)
     if not tracker_matches:
