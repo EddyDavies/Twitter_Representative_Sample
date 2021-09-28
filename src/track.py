@@ -1,8 +1,9 @@
 from datetime import datetime
 from random import randrange
 
+from mongo import db, months, query
 from utils import get_date_range, twitter_date_format_to_day, get_month_array, twitter_date_format_to_time
-from decorators import db, accept_duplicates
+from decorators import accept_duplicates
 from count_or_search import count, form_count_query_params
 
 
@@ -131,21 +132,20 @@ def time_between(time_obj, start, end):
     else:
         return False
 
-
 if __name__ == '__main__':
-    # track_months("bitcoin", ["Jan17", "Jun21"])
+    create_counts(query, months)
     # update_tracker("2018-01-01", 100)
     # print(json.dumps(num, indent=4, sort_keys=False))
 
-    # months = get_month_array(["Jan 21", "Jun 21"])
-    # save_counts("bitcoin", months)
+    months = get_month_array(months)
+    # save_counts(query, months)
     # db["counts"].update_one({"track": "months"}, {"$push": {"months": {"$each": months, "$position": -1}}}, upsert=True)
 
-    total = 0
-    cursor = db["counts"].find({"_id": {"$regex": '^\d*-\d*-\d*'}}, {"tweet_target": 1, "_id": 0})
-    for day in cursor:
-        total += day["tweet_target"]
-        print(f"\rTotal={total}", end="")
+    # total = 0
+    # cursor = db["counts"].find({"_id": {"$regex": '^\d*-\d*-\d*'}}, {"tweet_target": 1, "_id": 0})
+    # for day in cursor:
+    #     total += day["tweet_target"]
+    #     print(f"\rTotal={total}", end="")
 
 
 

@@ -1,10 +1,11 @@
 import json
 import time
+from datetime import datetime, timedelta
 
 import requests
 import os
 
-from utils import twitter_date_format
+from utils import twitter_date_format, string_to_datetime
 
 search_url = "https://api.twitter.com/2/tweets/search/all"
 count_url = "https://api.twitter.com/2/tweets/counts/all"
@@ -42,6 +43,10 @@ def count(query_params):
 
 def form_count_query_params(query: str, start: str, end: str, granularity="day"):
     # create search query params in twitter required format
+    now = datetime.now()
+    if string_to_datetime(end) > now:
+        yesterday = now - timedelta(days=1)
+        end = datetime.strftime(yesterday, "%Y-%m-%d")
 
     count_query = {
         'query': query + " lang:en -is:retweet",
@@ -95,13 +100,13 @@ def convert_id_across_response(data):
 
 
 if __name__ == "__main__":
-    query = "bitcoin"
+    query = "nft"
 
-    count_query_params = form_count_query_params(query, '2021-01-01', '2021-02-01')
-    # json_response = count(count_query_params)
+    count_query_params = form_count_query_params(query, '2017-01-01', '2017-09-01')
+    json_response = count(count_query_params)
 
-    search_query_params = form_search_query_params(query, '2017-01-27', max_results=500)
-    json_response = search(search_query_params)
+    # # search_query_params = form_search_query_params(query, '2017-01-27', max_results=500)
+    # json_response = search(search_query_params)
 
-    with open("../data/tweets2.json", "w") as f:
+    with open("../data/nft.json", 'w') as f:
         json.dump(json_response, f, indent=4, sort_keys=False)
