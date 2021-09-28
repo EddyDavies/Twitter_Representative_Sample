@@ -5,7 +5,16 @@ from typing import List
 
 from mongo import db
 
+def check_date_before_today(date: str) -> str:
+    """
+    Returns Yestarday or Original Date
+    """
+    now = datetime.now()
+    if string_to_datetime(date) > now:
+        yesterday = now - timedelta(days=1)
+        date = datetime.strftime(yesterday, "%Y-%m-%d")
 
+    return date
 
 def check_for_duplicates(dictionary_list, item):
     # check no duplicates in list of dictionaries
@@ -79,6 +88,7 @@ def get_date_range(months: list):
 
     first = datetime.strftime(first, "%Y-%m-%d")
     last = datetime.strftime(last, "%Y-%m-%d")
+    last = check_date_before_today(last)
 
     return first, last
 

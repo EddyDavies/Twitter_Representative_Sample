@@ -8,7 +8,7 @@ def extract_env_vars():
     if m:
         m = m.split(" ")
         m = list(map(' '.join, zip(m[::2], m[1::2])))
-        dates_string = f"{m[0]} to {m[1]}"
+        months_string = f"{m[0]} to {m[1]}"
 
     d = os.environ.get("TWITTER_DATES")
     if d:
@@ -21,7 +21,10 @@ def extract_env_vars():
     dbname = os.environ.get('TWITTER_DBNAME')
     # todo maybe change
 
-    print(f"Query: {q}, DBName: {dbname}, Date: {dates_string}")
+    print(f"Query: {q}, DBName: {dbname},")
+    print(f" Date: {dates_string}")
+    print(f" Months: {months_string}")
+
     print(mongo_url)
 
     return d, m, q, mongo[dbname], mongo["shared"]

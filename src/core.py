@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # check tracker exists for the whole specified region for this query
     tracker_matches, months_range = check_counts(months)
     if not tracker_matches:
-        create_counts(query, months_range)
+        create_counts(query, months_range, percent=1.0)
 
     dates = get_date_array(get_date_range(months))
 
