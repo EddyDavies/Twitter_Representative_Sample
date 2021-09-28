@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     percent = 0.1
     if len(sys.argv) > 1:
-        percent = sys.argv[1]
+        percent = float(sys.argv[1])
 
     # check tracker exists for the whole specified region for this query
     tracker_matches, months_range = check_counts(months)
