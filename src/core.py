@@ -1,5 +1,6 @@
 import math
 import subprocess
+import sys
 
 from count_or_search import search, form_search_query_params
 from process import store_tweets
@@ -27,10 +28,14 @@ def collect(query, day, tweets_remaining, begin=None):
 
 if __name__ == '__main__':
 
+    percent = 0.1
+    if len(sys.argv) > 1:
+        percent = sys.argv[1]
+        
     # check tracker exists for the whole specified region for this query
     tracker_matches, months_range = check_counts(months)
     if not tracker_matches:
-        create_counts(query, months_range, percent=1.0)
+        create_counts(query, months_range, percent=percent)
 
     dates = get_date_array(get_date_range(months))
 
